@@ -24,7 +24,7 @@
     [unbind (->m #t)])])
  (struct-out exn:fail:ldap))
 
-(define mod-list? (listof (list number? string? (listof string?))))
+(define mod-list? (listof (list/c number? string? (listof string?))))
 
 (define-struct (exn:fail:ldap exn:fail:user) ())
 
