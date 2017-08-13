@@ -23,15 +23,20 @@
  ldap-modify-ext-s
  ldap-rename-s
  ldap-delete-ext-s
- ldapmod-c-array-ptr
  get-ber-value
- (struct-out berval)
- (struct-out lmod))
+ (struct-out berval))
 
 (define-ffi-definer defldap (ffi-lib "libldap" '("2" "4")))
 
 ;; typedef struct ldap LDAP;
 (define _ldap-pointer (_or-null (_cpointer 'ldap)))
+
+;; _array/list with 0 as last item
+(define (_array/list/zero type)
+  (make-ctype _pointer               
+              (λ (lst)                
+                (cast (append lst '(#f)) (_list i (_or-null type)) _pointer))
+              #f))
 
 #|
 /* structure for returning a sequence of octet strings + length */
@@ -267,55 +272,22 @@ typedef struct ldapmod {
 #define mod_bvalues    mod_vals.modv_bvals
 } LDAPMod;
 |#
+
 (define-cstruct _ldapmod
   ([mod_op      _int]
    [mod_type    _string]
-   [mod_values  (_or-null _pointer)]
+   [mod_values  (_or-null (_array/list/zero _string))]
    #;[mod_bvalues _pointer]))
 
-(define _c-ldap-mod (_or-null _ldapmod-pointer))
+(define _c-ldap-mod _ldapmod-pointer/null)
 
-(struct lmod (op type vals)
-  #:transparent
-  #:guard
-  (λ (op type vals name)
-    (unless (number? op)
-      (error "not a valid type of op"))
-    (unless (string? type)
-      (error "not a valid type of type field"))
-    (unless (list? vals)
-      (error "not a valid type of vals"))
-    (values op type vals)))
 
-(define (ldapmod-c-array-ptr lmod-lst)
-  (define len  (length lmod-lst))
-  (define lmt  (_array _c-ldap-mod (add1 len)))
-  (define lmx  (malloc lmt))
-  (define mods (ptr-ref lmx lmt 0))
-  ;; set mods
-  (for ([mod lmod-lst]
-        [i (in-naturals)])
-    (define l (length (lmod-vals mod)))
-    (define t (_array _string (add1 l)))
-    (define x (malloc t))
-    (define a (ptr-ref x t 0))
-
-    (for ([v (lmod-vals mod)]
-          [j (in-naturals)])
-      (array-set! a j v))
-    ;; set NULL to the latest array position
-    (array-set! a l #f)
-    ;; set c-structs to mods array
-    (define c-mod
-      (make-ldapmod (lmod-op mod)
-                    (lmod-type mod)
-                    (array-ptr a)))
-    (array-set! mods i c-mod))
-  ;; set NULL to the latest array position
-  (array-set! mods len #f)
-  ;; return _cpointer of array of mods
-  (array-ptr mods))
-
+(define _ldapmod/list
+  (make-ctype _ldapmod-pointer               
+              (λ (lst)
+                (apply make-ldapmod lst))
+              #f))
+  
 #|
 LDAP_F( int )
 ldap_add_ext_s LDAP_P((
@@ -327,7 +299,7 @@ ldap_add_ext_s LDAP_P((
 |#
 (defldap ldap-add-ext-s (_fun _pointer
                               _string
-                              (_or-null _pointer)
+                              (_array/list/zero _ldapmod/list)
                               _pointer
                               _pointer
                               -> _int)
@@ -344,7 +316,7 @@ ldap_modify_ext_s LDAP_P((
 |#
 (defldap ldap-modify-ext-s (_fun _pointer
                                  _string
-                                 (_or-null _pointer)
+                                 (_array/list/zero _ldapmod/list)
                                  _pointer
                                  _pointer
                                  -> _int)
