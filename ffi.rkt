@@ -283,11 +283,11 @@ typedef struct ldapmod {
 
 
 (define _ldapmod/list
-  (make-ctype _ldapmod-pointer               
+  (make-ctype _ldapmod-pointer/null
               (λ (lst)
-                (apply make-ldapmod lst))
+                (if lst (apply make-ldapmod lst) #f))
               #f))
-  
+
 #|
 LDAP_F( int )
 ldap_add_ext_s LDAP_P((
