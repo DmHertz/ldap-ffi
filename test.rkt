@@ -18,7 +18,9 @@
         "uid=Dymok,ou=gatos,cn=Manager,dc=hz,dc=ru"
         "uid=Dymokhod"
         "ou=gatos,cn=Manager,dc=hz,dc=ru"
-        0)
+        ;; 0: don't delete old value
+        ;; 1: delete old value
+        1)
   (send ldap unbind))
 
 (module+ test-add
@@ -38,7 +40,8 @@
   (send ldap bind)
   (send ldap modify
         "uid=Dymokhod,ou=gatos,cn=Manager,dc=hz,dc=ru"
-        '((#x0002 "description" ("Um bom gatinho" "El gato gordo"))))
+        '((#x0002 "description" ("El gato gordo"))
+          (#x0002 "mail" ("elgatogordo@example-gato.org"))))
   (send ldap unbind))
 
 (module+ test-search
