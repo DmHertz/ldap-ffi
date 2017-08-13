@@ -35,7 +35,7 @@
 (define (_array/list/zero type)
   (make-ctype _pointer               
               (λ (lst)                
-                (cast (append lst '(#f)) (_list i (_or-null type)) _pointer))
+                (list->cblock (append lst '(#f)) type))
               #f))
 
 #|
@@ -276,7 +276,7 @@ typedef struct ldapmod {
 (define-cstruct _ldapmod
   ([mod_op      _int]
    [mod_type    _string]
-   [mod_values  (_or-null (_array/list/zero _string))]
+   [mod_values  (_array/list/zero _string)]
    #;[mod_bvalues _pointer]))
 
 (define _c-ldap-mod _ldapmod-pointer/null)
