@@ -1,4 +1,4 @@
-#lang racket
+#lang racket/base
 
 (require ffi/unsafe
          ffi/unsafe/define)
@@ -26,7 +26,7 @@
  get-ber-value
  (struct-out berval))
 
-(define-ffi-definer defldap (ffi-lib "libldap" '("2" "4")))
+(define-ffi-definer defldap (ffi-lib "libldap-2.4" '("2" "4")))
 
 ;; typedef struct ldap LDAP;
 (define _ldap-pointer (_or-null (_cpointer 'ldap)))
