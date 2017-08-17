@@ -18,6 +18,7 @@
     [add    (->m string? mod-list? #t)]
     [delete (->m string? #t)]
     [search (->m string? string? (or/c 0 1 2) #t)]
+    [compare  (->m string? string? string? boolean?)]
     [get-data (->m (listof list?))]
     [count-entries (->m (or/c zero? positive?))]
     [rename-dn (->m string? string? string? (or/c 0 1) #t)]
@@ -114,6 +115,17 @@
 
     (define/public (get-data)
       (unbox ldap-data))
+
+    (define/public (compare dn attr value)
+      ;; LDAP_COMPARE_FALSE    0x05
+      ;; LDAP_COMPARE_TRUE     0x06
+      (define r
+        (ldap-compare-ext-s
+         ld dn attr (make-berval (string-length value) value) #f #f))
+      (case r
+        [(#x05) #f]
+        [(#x06) #t]
+        [else (raise-ldap-error (ldap-err2string r))]))
 
     (define/public (count-entries)
       (ldap-count-entries ld (unbox ldap-message-c-ptr)))

@@ -53,3 +53,12 @@
   (send ldap count-entries)
   (send ldap get-data)
   (send ldap unbind))
+
+(module+ test-compare
+  (require (submod ".." test))
+  (send ldap bind)
+  (send ldap compare
+        "uid=Blanco,ou=gatos,cn=Manager,dc=hz,dc=ru"
+        "mail"
+        "elgatoblanco@example-gato.org")
+  (send ldap unbind))

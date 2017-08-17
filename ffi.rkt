@@ -9,6 +9,7 @@
  ldap-sasl-bind-s
  ldap-unbind-ext-s
  ldap-search-ext-s
+ ldap-compare-ext-s
  ldap-err2string
  ldap-get-dn
  ldap-first-attribute
@@ -167,6 +168,25 @@ ldap_search_ext_s LDAP_P((
                                  -> (r : _int)
                                  -> (values r res))
   #:c-id ldap_search_ext_s)
+
+#|
+LDAP_F( int )
+ldap_compare_ext_s LDAP_P((
+        LDAP *ld,
+        LDAP_CONST char *dn,
+        LDAP_CONST char *attr,
+        struct berval   *bvalue,
+        LDAPControl             **serverctrls,
+        LDAPControl             **clientctrls ));
+|#
+(defldap ldap-compare-ext-s (_fun _pointer
+                                  _string
+                                  _string
+                                  (_ptr i _berval)
+                                  _pointer
+                                  _pointer
+                                  -> _int)
+  #:c-id ldap_compare_ext_s)
 
 ;; LDAP_F( char * ) ldap_err2string LDAP_P(( int err ));
 (defldap ldap-err2string (_fun _int

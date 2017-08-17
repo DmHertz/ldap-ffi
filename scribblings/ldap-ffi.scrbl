@@ -47,6 +47,11 @@ This package provides an FFI binding to the @hyperlink["http://www.openldap.org/
 
   If the @racket[search] fails, then an instance of exn:fail:libldap is raised.
  }
+ @defmethod[(compare [dn string?] [attr string?] [value string?]) boolean?]{
+  Check whether or not an entry contains the same attribute value as given.
+
+  If the @racket[compare] fails, then an instance of exn:fail:libldap is raised.
+ }
  @defmethod[(get-data) (listof list?)]{
   Return retrieved data from the internal box storage. It doesn't make a request to the LDAP server.
  }
