@@ -58,6 +58,11 @@ This package provides an FFI binding to the @hyperlink["http://www.openldap.org/
  @defmethod[(count-entries) (or/c zero? positive?)]{
   Return the number of retrieved entries or 0 otherwise.
  }
+ @defmethod[(set-password [user string?] [oldpw string?] [newpw string?]) boolean?]{
+  Set a new password.
+
+  If the @racket[set-password] fails, then an instance of exn:fail:libldap is raised.
+ }
  @defmethod[(rename-dn [dn string?] [newrdn string?] [new-superior string?] [delete-old-rdn (or/c 0 1)]) #t]{
   Rename the DN of an LDAP entry or move it from one superior to another.
 

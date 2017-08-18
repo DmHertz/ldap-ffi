@@ -44,6 +44,15 @@
           (#x0002 "mail" ("elgatogordo@example-gato.org"))))
   (send ldap unbind))
 
+(module+ test-set-password
+  (require (submod ".." test))
+  (send ldap bind)
+  (send ldap set-password
+        "uid=Blanco,ou=gatos,cn=Manager,dc=hz,dc=ru"
+        "a+senha+antiga"
+        "a+senha")
+  (send ldap unbind))
+
 (module+ test-search
   (require (submod ".." test))
   (send ldap bind)

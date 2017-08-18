@@ -22,10 +22,10 @@
  ldap-count-entries
  ldap-add-ext-s
  ldap-modify-ext-s
+ ldap-passwd-s
  ldap-rename-s
  ldap-delete-ext-s
- get-ber-value
- (struct-out berval))
+ get-ber-value)
 
 (define-ffi-definer defldap (ffi-lib "libldap-2.4" '("2" "4")))
 
@@ -34,8 +34,8 @@
 
 ;; _array/list with 0 as last item
 (define (_array/list/zero type)
-  (make-ctype _pointer               
-              (λ (lst)                
+  (make-ctype _pointer
+              (λ (lst)
                 (list->cblock (append lst '(#f)) type))
               #f))
 
@@ -119,7 +119,10 @@ ldap_sasl_bind_s LDAP_P((
 (defldap ldap-sasl-bind-s (_fun _pointer
                                 _string
                                 _int
-                                (_ptr i _berval)
+                                [pswd : _?] ;; pswd is used for pre-processing
+                                [_ : (_ptr i _berval) = (make-berval
+                                                         (string-length pswd)
+                                                         pswd)]
                                 _pointer
                                 _pointer
                                 _berval-pointer/null
@@ -182,7 +185,10 @@ ldap_compare_ext_s LDAP_P((
 (defldap ldap-compare-ext-s (_fun _pointer
                                   _string
                                   _string
-                                  (_ptr i _berval)
+                                  [value : _?] ;; value is used for pre-processing
+                                  [_ : (_ptr i _berval) = (make-berval
+                                                           (string-length value)
+                                                           value)]
                                   _pointer
                                   _pointer
                                   -> _int)
@@ -341,6 +347,38 @@ ldap_modify_ext_s LDAP_P((
                                  _pointer
                                  -> _int)
   #:c-id ldap_modify_ext_s)
+
+#|
+LDAP_F( int )
+ldap_passwd_s LDAP_P((
+        LDAP           *ld,
+        struct berval  *user,
+        struct berval  *oldpw,
+        struct berval  *newpw,
+        struct berval  *newpasswd,
+        LDAPControl   **sctrls,
+        LDAPControl   **cctrls ));
+|#
+(defldap ldap-passwd-s (_fun _pointer
+                             [user : _?]
+                             [_ : (_ptr i _berval) = (make-berval
+                                                      (string-length user)
+                                                      user)]
+                             [oldpw : _?]
+                             [_ : (_ptr i _berval) = (make-berval
+                                                      (string-length oldpw)
+                                                      oldpw)]
+                             [newpw : _?]
+                             [_ : (_ptr i _berval) = (make-berval
+                                                      (string-length newpw)
+                                                      newpw)]
+                             [_ : (_ptr i _berval) = (make-berval
+                                                      (string-length newpw)
+                                                      newpw)]
+                             _pointer
+                             _pointer
+                             -> _int)
+  #:c-id ldap_passwd_s)
 
 #|
 LDAP_F( int )

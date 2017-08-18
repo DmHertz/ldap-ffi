@@ -1,7 +1,7 @@
 #lang racket/base
 
 (require racket/class
-         racket/contract         
+         racket/contract
          "ffi.rkt")
 
 (provide
@@ -21,6 +21,7 @@
     [compare  (->m string? string? string? boolean?)]
     [get-data (->m (listof list?))]
     [count-entries (->m (or/c zero? positive?))]
+    [set-password  (->m string? string? string? boolean?)]
     [rename-dn (->m string? string? string? (or/c 0 1) #t)]
     [unbind (->m #t)])])
  (struct-out exn:fail:ldap))
@@ -86,11 +87,9 @@
     (define/public (bind [mechanism 0])
       (if (unbox ldap-valid)
           (raise-ldap-error "ldap is already bound")
-          (do-thunk-or-raise-error (ldap-sasl-bind-s ld root-dn mechanism
-                                                     (make-berval (string-length password)
-                                                                  password)
-                                                     #f #f #f)
-                                   (λ () (set-box! ldap-valid #t) #t))))
+          (do-thunk-or-raise-error
+           (ldap-sasl-bind-s ld root-dn mechanism password #f #f #f)
+           (λ () (set-box! ldap-valid #t) #t))))
 
     (define/private (add-modify ldap-ffi-fn user-dn mod-list)
       (return-true-or-raise-error (ldap-ffi-fn ld user-dn mod-list #f #f)))
@@ -119,9 +118,7 @@
     (define/public (compare dn attr value)
       ;; LDAP_COMPARE_FALSE    0x05
       ;; LDAP_COMPARE_TRUE     0x06
-      (define r
-        (ldap-compare-ext-s
-         ld dn attr (make-berval (string-length value) value) #f #f))
+      (define r (ldap-compare-ext-s ld dn attr value #f #f))
       (case r
         [(#x05) #f]
         [(#x06) #t]
@@ -130,11 +127,20 @@
     (define/public (count-entries)
       (ldap-count-entries ld (unbox ldap-message-c-ptr)))
 
+    (define/public (set-password user oldpw newpw)
+      (define r (ldap-passwd-s user oldpw newpw #f #f))
+      (case r
+        [(1) #f]
+        [(0) #t]
+        [else (raise-ldap-error (ldap-err2string r))]))
+
     (define/public (rename-dn dn newrdn new-superior delete-old-rdn)
       (return-true-or-raise-error
        (ldap-rename-s ld dn newrdn new-superior delete-old-rdn #f #f)))
 
     (define/public (unbind)
       (if (unbox ldap-valid)
-          (do-thunk-or-raise-error (ldap-unbind-ext-s ld #f #f) (λ () (set-box! ldap-valid #f) #t))
+          (do-thunk-or-raise-error
+           (ldap-unbind-ext-s ld #f #f)
+           (λ () (set-box! ldap-valid #f) #t))
           (raise-ldap-error "ldap is already unbound")))))
