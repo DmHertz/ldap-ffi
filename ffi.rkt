@@ -1,7 +1,8 @@
 #lang racket/base
 
 (require ffi/unsafe
-         ffi/unsafe/define)
+         ffi/unsafe/define
+         ffi/unsafe/define/conventions)
 
 (provide
  ldap-initialize
@@ -27,7 +28,8 @@
  ldap-delete-ext-s
  get-ber-value)
 
-(define-ffi-definer defldap (ffi-lib "libldap-2.4" '("2" "4")))
+(define-ffi-definer defldap (ffi-lib "libldap-2.4" '("2" "4"))
+  #:make-c-id convention:hyphen->underscore)
 
 ;; typedef struct ldap LDAP;
 (define _ldap-pointer (_or-null (_cpointer 'ldap)))
@@ -89,8 +91,7 @@ ldap_initialize LDAP_P((
 (defldap ldap-initialize (_fun [ld : (_ptr o _ldap-pointer)]
                                _string
                                -> [r : _int]
-                               -> (values r ld))
-  #:c-id ldap_initialize)
+                               -> (values r ld)))
 
 #|
 LDAP_F( int )
@@ -102,8 +103,7 @@ ldap_set_option LDAP_P((
 (defldap ldap-set-option (_fun _pointer
                                _int
                                (_ptr i _int)
-                               -> _int)
-  #:c-id ldap_set_option)
+                               -> _int))
 
 #|
 LDAP_F( int )
@@ -126,8 +126,7 @@ ldap_sasl_bind_s LDAP_P((
                                 _pointer
                                 _pointer
                                 _berval-pointer/null
-                                -> _int)
-  #:c-id ldap_sasl_bind_s)
+                                -> _int))
 
 #|
 LDAP_F( int )
@@ -139,8 +138,7 @@ ldap_unbind_ext_s LDAP_P((
 (defldap ldap-unbind-ext-s (_fun _pointer
                                  _pointer
                                  _pointer
-                                 -> _int)
-  #:c-id ldap_unbind_ext_s)
+                                 -> _int))
 
 #|
 LDAP_F( int )
@@ -169,8 +167,7 @@ ldap_search_ext_s LDAP_P((
                                  _int
                                  (res : (_ptr o _pointer))
                                  -> (r : _int)
-                                 -> (values r res))
-  #:c-id ldap_search_ext_s)
+                                 -> (values r res)))
 
 #|
 LDAP_F( int )
@@ -191,19 +188,16 @@ ldap_compare_ext_s LDAP_P((
                                                        value)]
                                   _pointer
                                   _pointer
-                                  -> _int)
-  #:c-id ldap_compare_ext_s)
+                                  -> _int))
 
 ;; LDAP_F( char * ) ldap_err2string LDAP_P(( int err ));
 (defldap ldap-err2string (_fun _int
-                               -> _string)
-  #:c-id ldap_err2string)
+                               -> _string))
 
 ;; LDAP_F( char * ) ldap_get_dn LDAP_P((LDAP *ld, LDAPMessage *entry ));
 (defldap ldap-get-dn (_fun _pointer
                            _pointer
-                           -> _string)
-  #:c-id ldap_get_dn)
+                           -> _string))
 
 #|
 LDAP_F( char * )
@@ -216,8 +210,7 @@ ldap_first_attribute LDAP_P((
                                     _pointer
                                     (ber : (_ptr o _pointer))
                                     -> (fst-attr : _string)
-                                    -> (values fst-attr ber))
-  #:c-id ldap_first_attribute)
+                                    -> (values fst-attr ber)))
 
 #|
 LDAP_F( char * )
@@ -229,8 +222,7 @@ ldap_next_attribute LDAP_P((
 (defldap ldap-next-attribute (_fun _pointer
                                    _pointer
                                    _pointer
-                                   -> _string)
-  #:c-id ldap_next_attribute)
+                                   -> _string))
 
 #|
 LDAP_F( struct berval ** )
@@ -242,37 +234,31 @@ ldap_get_values_len LDAP_P((
 (defldap ldap-get-values-len (_fun _pointer
                                    _pointer
                                    _string
-                                   -> _berval-pointer)
-  #:c-id ldap_get_values_len)
+                                   -> _berval-pointer))
 
 ;; LDAP_F( int ) ldap_count_values_len LDAP_P(( struct berval **vals ));
 (defldap ldap-count-values-len (_fun _berval-pointer
-                                     -> _int)
-  #:c-id ldap_count_values_len)
+                                     -> _int))
 
 ;; LDAP_F( void ) ldap_value_free_len LDAP_P(( struct berval **vals ));
 (defldap ldap-value-free-len (_fun _berval-pointer
-                                   -> _void)
-  #:c-id ldap_value_free_len)
+                                   -> _void))
 
 ;; LDAP_F( LDAPMessage * ) ldap_first_entry LDAP_P(( LDAP *ld, LDAPMessage *chain ));
 (defldap ldap-first-entry (_fun _pointer
                                 _pointer
-                                -> _pointer)
-  #:c-id ldap_first_entry)
+                                -> _pointer))
 
 
 ;; LDAP_F( LDAPMessage * ) ldap_next_entry LDAP_P(( LDAP *ld, LDAPMessage *entry ));
 (defldap ldap-next-entry (_fun _pointer
                                _pointer
-                               -> _pointer)
-  #:c-id ldap_next_entry)
+                               -> _pointer))
 
 ;; LDAP_F( int ) ldap_count_entries LDAP_P((LDAP *ld, LDAPMessage *chain ));
-(defldap ldap-count-entries [_fun _pointer
+(defldap ldap-count-entries (_fun _pointer
                                   _pointer
-                                  -> _int]
-  #:c-id ldap_count_entries)
+                                  -> _int))
 
 #|
 /* for modifications */
@@ -328,8 +314,7 @@ ldap_add_ext_s LDAP_P((
                               (_array/list/zero _ldapmod/list)
                               _pointer
                               _pointer
-                              -> _int)
-  #:c-id ldap_add_ext_s)
+                              -> _int))
 
 #|
 LDAP_F( int )
@@ -345,8 +330,7 @@ ldap_modify_ext_s LDAP_P((
                                  (_array/list/zero _ldapmod/list)
                                  _pointer
                                  _pointer
-                                 -> _int)
-  #:c-id ldap_modify_ext_s)
+                                 -> _int))
 
 #|
 LDAP_F( int )
@@ -377,8 +361,7 @@ ldap_passwd_s LDAP_P((
                                                  newpw)]
                              _pointer
                              _pointer
-                             -> _int)
-  #:c-id ldap_passwd_s)
+                             -> _int))
 
 #|
 LDAP_F( int )
@@ -398,8 +381,7 @@ ldap_rename_s LDAP_P((
                              _int
                              _pointer
                              _pointer
-                             -> _int)
-  #:c-id ldap_rename_s)
+                             -> _int))
 
 #|
 LDAP_F( int )
@@ -414,8 +396,7 @@ ldap_delete_ext_s LDAP_P((
                                  _string
                                  _pointer
                                  _pointer
-                                 -> _int)
-  #:c-id ldap_delete_ext_s)
+                                 -> _int))
 
 ;; misc
 (define (get-ber-value vals i)
