@@ -120,9 +120,9 @@ ldap_sasl_bind_s LDAP_P((
                                 _string
                                 _int
                                 [pswd : _?] ;; pswd is used for pre-processing
-                                [_ : (_ptr i _berval) = (make-berval
-                                                         (string-length pswd)
-                                                         pswd)]
+                                [_berval-pointer = (make-berval
+                                                    (string-length pswd)
+                                                    pswd)]
                                 _pointer
                                 _pointer
                                 _berval-pointer/null
@@ -186,9 +186,9 @@ ldap_compare_ext_s LDAP_P((
                                   _string
                                   _string
                                   [value : _?] ;; value is used for pre-processing
-                                  [_ : (_ptr i _berval) = (make-berval
-                                                           (string-length value)
-                                                           value)]
+                                  [_berval-pointer = (make-berval
+                                                       (string-length value)
+                                                       value)]
                                   _pointer
                                   _pointer
                                   -> _int)
@@ -361,20 +361,20 @@ ldap_passwd_s LDAP_P((
 |#
 (defldap ldap-passwd-s (_fun _pointer
                              [user : _?]
-                             [_ : (_ptr i _berval) = (make-berval
-                                                      (string-length user)
-                                                      user)]
+                             [_berval-pointer = (make-berval
+                                                 (string-length user)
+                                                 user)]
                              [oldpw : _?]
-                             [_ : (_ptr i _berval) = (make-berval
-                                                      (string-length oldpw)
-                                                      oldpw)]
+                             [_berval-pointer = (make-berval
+                                                 (string-length oldpw)
+                                                 oldpw)]
                              [newpw : _?]
-                             [_ : (_ptr i _berval) = (make-berval
-                                                      (string-length newpw)
-                                                      newpw)]
-                             [_ : (_ptr i _berval) = (make-berval
-                                                      (string-length newpw)
-                                                      newpw)]
+                             [_berval-pointer = (make-berval
+                                                 (string-length newpw)
+                                                 newpw)]
+                             [_berval-pointer = (make-berval
+                                                 (string-length newpw)
+                                                 newpw)]
                              _pointer
                              _pointer
                              -> _int)

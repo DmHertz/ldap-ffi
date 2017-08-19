@@ -128,7 +128,7 @@
       (ldap-count-entries ld (unbox ldap-message-c-ptr)))
 
     (define/public (set-password user oldpw newpw)
-      (define r (ldap-passwd-s user oldpw newpw #f #f))
+      (define r (ldap-passwd-s ld user oldpw newpw #f #f))
       (case r
         [(1) #f]
         [(0) #t]
