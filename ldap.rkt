@@ -96,13 +96,13 @@
 
     (define/public (modify user-dn mod-list)
       (add-modify ldap-modify-ext-s user-dn mod-list))
-    
+
     (define/public (add user-dn mod-list)
       (add-modify ldap-add-ext-s user-dn mod-list))
 
     (define/public (delete dn)
       (return-true-or-raise-error (ldap-delete-ext-s ld #f #f)))
-    
+
     (define/public (search base-dn fltr scope)
       (define-values (r msg)
         (ldap-search-ext-s ld base-dn scope fltr #f 0 #f #f #f 0))
@@ -111,6 +111,12 @@
        r (λ ()
            (set-box! ldap-message-c-ptr msg)
            (read-ldap-message msg) #t)))
+
+    (define/public (search* base-dn fltr scope)
+      (search base-dn fltr scope)
+      (begin0
+          (unbox ldap-data)
+        (set-box! ldap-data '(()))))
 
     (define/public (get-data)
       (unbox ldap-data))
@@ -143,4 +149,7 @@
           (do-thunk-or-raise-error
            (ldap-unbind-ext-s ld #f #f)
            (λ () (set-box! ldap-valid #f) #t))
-          (raise-ldap-error "ldap is already unbound")))))
+          (raise-ldap-error "ldap is already unbound")))
+
+    (define/public (clear)
+      (set-box! ldap-data '(())))))
