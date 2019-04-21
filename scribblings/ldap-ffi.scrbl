@@ -49,7 +49,7 @@ This package provides an FFI binding to the @hyperlink["http://www.openldap.org/
   If the @racket[search] fails, then an instance of exn:fail:libldap is raised.
  }
  @defmethod[(search* [base-dn string?] [fltr string?] [scope (or/c 0 1 2)]) (listof list?)]{
-  Equivalent to @racket[search] but returs @racket[(lstof list?)] (instead of @racket[#t]) then clears the object's internal ldap-message storage.
+  Equivalent to @racket[search] but returs @racket[(listof list?)] (instead of @racket[#t]) then clears the object's internal ldap-message storage.
 
   If the @racket[search*] fails, then an instance of exn:fail:libldap is raised.
  }
@@ -79,7 +79,7 @@ This package provides an FFI binding to the @hyperlink["http://www.openldap.org/
 
   If the @racket[unbind] fails, then an instance of exn:fail:libldap is raised.
  }
- @defmethod[(clear) #t]{
+ @defmethod[(clear) void?]{
   Clear the object's internal box storage where the latest returned ldap-message storages itself.  
  }
 }

@@ -18,12 +18,14 @@
     [add    (->m string? mod-list? #t)]
     [delete (->m string? #t)]
     [search (->m string? string? (or/c 0 1 2) #t)]
+    [search*  (->m string? string? (or/c 0 1 2) (listof list?))]
     [compare  (->m string? string? string? boolean?)]
     [get-data (->m (listof list?))]
     [count-entries (->m (or/c zero? positive?))]
     [set-password  (->m string? string? string? boolean?)]
     [rename-dn (->m string? string? string? (or/c 0 1) #t)]
-    [unbind (->m #t)])])
+    [unbind (->m #t)]
+    [clear (->m void?)])])
  (struct-out exn:fail:ldap))
 
 (define mod-list? (listof (list/c number? string? (listof string?))))
