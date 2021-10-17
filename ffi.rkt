@@ -29,7 +29,8 @@
  get-ber-value)
 
 (define-ffi-definer defldap (ffi-lib "libldap-2.4" '("2" "4"))
-  #:make-c-id convention:hyphen->underscore)
+  #:make-c-id convention:hyphen->underscore
+  #:default-make-fail make-not-available)
 
 ;; typedef struct ldap LDAP;
 (define _ldap-pointer (_or-null (_cpointer 'ldap)))
